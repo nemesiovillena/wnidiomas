@@ -12,6 +12,9 @@ dotenv.config({
     path: path.resolve(dirname, '../.env'),
 })
 
+// Configurar Payload para aceptar cambios de schema sin prompt
+process.env.PAYLOAD_DROP_SCHEMA = 'true'
+
 // Verificar variables de entorno críticas
 if (!process.env.PAYLOAD_SECRET) {
     console.error('❌ ERROR: PAYLOAD_SECRET no está definida en el archivo .env')
