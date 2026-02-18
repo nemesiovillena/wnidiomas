@@ -124,6 +124,11 @@ echo "✅ PostgreSQL está listo en localhost:5432"
 echo "📊 Usuario: $PGUSER"
 echo "📊 Base de datos: $PGDATABASE"
 
-# Ejecutar el comando pasado como argumento (por defecto: npm run dev)
-echo "🌐 Iniciando aplicación..."
-exec "$@"
+# Ejecutar el comando pasado como argumento (por defecto: npm run dev:unified)
+if [ -z "$1" ]; then
+    echo "🌐 Iniciando servidor unificado..."
+    exec npm run dev:unified
+else
+    echo "🌐 Iniciando aplicación..."
+    exec "$@"
+fi

@@ -42,8 +42,5 @@ EXPOSE 3000 5432
 # Cambiar a usuario node
 USER node
 
-# Punto de entrada
+# Punto de entrada (se ejecutará npm run dev:unified si no se pasa comando)
 ENTRYPOINT ["docker-entrypoint.local.sh"]
-
-# Comando por defecto (se puede sobrescribir en docker-compose)
-CMD ["npm", "run", "dev"]
