@@ -98,10 +98,10 @@ const seed = async () => {
           collection: 'categorias',
           data: categoria,
         })
-        categoriasCreadas[categoria.slug] = created.id
+        categoriasCreadas[categoria.slug] = String(created.id)
         console.log(`   ✅ ${categoria.nombre}`)
       } else {
-        categoriasCreadas[categoria.slug] = existing.docs[0].id
+        categoriasCreadas[categoria.slug] = String(existing.docs[0].id)
         console.log(`   ⏭️  ${categoria.nombre} ya existe`)
       }
     } catch (error) {
@@ -126,7 +126,7 @@ const seed = async () => {
     {
       nombre: 'Jamón Ibérico de Bellota',
       descripcion: 'Jamón ibérico de bellota cortado a cuchillo con pan con tomate',
-      precio: 28,
+      precio: '28 €',
       categoria: 'entrantes',
       activo: true,
       destacado: true,
@@ -135,7 +135,7 @@ const seed = async () => {
     {
       nombre: 'Croquetas de Jamón',
       descripcion: 'Croquetas caseras de jamón ibérico (6 unidades)',
-      precio: 14,
+      precio: '14 €',
       categoria: 'entrantes',
       alergenos: ['G', 'L', 'H'],
       activo: true,
@@ -144,7 +144,7 @@ const seed = async () => {
     {
       nombre: 'Ensalada de Burrata',
       descripcion: 'Burrata fresca con tomate cherry, rúcula y reducción de módena',
-      precio: 16,
+      precio: '16 €',
       categoria: 'entrantes',
       alergenos: ['L'],
       activo: true,
@@ -153,7 +153,7 @@ const seed = async () => {
     {
       nombre: 'Solomillo de Ternera',
       descripcion: 'Solomillo de ternera gallega a la brasa con patatas panaderas',
-      precio: 32,
+      precio: '32 €',
       categoria: 'carnes',
       activo: true,
       destacado: true,
@@ -162,7 +162,7 @@ const seed = async () => {
     {
       nombre: 'Secreto Ibérico',
       descripcion: 'Secreto ibérico a la plancha con pimientos del padrón',
-      precio: 24,
+      precio: '24 €',
       categoria: 'carnes',
       activo: true,
       orden: 2,
@@ -170,7 +170,7 @@ const seed = async () => {
     {
       nombre: 'Lubina a la Espalda',
       descripcion: 'Lubina salvaje a la espalda con verduras de temporada',
-      precio: 28,
+      precio: '28 €',
       categoria: 'pescados',
       alergenos: ['P'],
       activo: true,
@@ -180,7 +180,7 @@ const seed = async () => {
     {
       nombre: 'Gambas al Ajillo',
       descripcion: 'Gambas rojas de Villajoyosa al ajillo',
-      precio: 22,
+      precio: '22 €',
       categoria: 'pescados',
       alergenos: ['C'],
       activo: true,
@@ -189,7 +189,7 @@ const seed = async () => {
     {
       nombre: 'Arroz Meloso de Bogavante',
       descripcion: 'Arroz meloso con bogavante gallego (mínimo 2 personas)',
-      precio: 26,
+      precio: '26 €',
       categoria: 'arroces',
       alergenos: ['C', 'P'],
       activo: true,
@@ -199,7 +199,7 @@ const seed = async () => {
     {
       nombre: 'Paella Valenciana',
       descripcion: 'Paella tradicional valenciana con pollo, conejo y verduras',
-      precio: 18,
+      precio: '18 €',
       categoria: 'arroces',
       activo: true,
       orden: 2,
@@ -207,7 +207,7 @@ const seed = async () => {
     {
       nombre: 'Tarta de Queso',
       descripcion: 'Tarta de queso casera con coulis de frutos rojos',
-      precio: 8,
+      precio: '8 €',
       categoria: 'postres',
       alergenos: ['L', 'H', 'G'],
       activo: true,
@@ -217,7 +217,7 @@ const seed = async () => {
     {
       nombre: 'Brownie con Helado',
       descripcion: 'Brownie de chocolate belga con helado de vainilla',
-      precio: 9,
+      precio: '9 €',
       categoria: 'postres',
       alergenos: ['L', 'H', 'G', 'F'],
       activo: true,

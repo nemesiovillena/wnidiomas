@@ -1,0 +1,36 @@
+---
+import { getHomepage, getMenus, getSiteSettings } from '../../lib/payload-local';
+import { locale } from 'astro:i18n';
+
+// Obtener el locale actual desde Astro
+const currentLocale = locale();
+
+// Fetch data with locale
+const homepage = await getHomepage(currentLocale);
+const menus = await getMenus(true, currentLocale);
+const siteSettings = await getSiteSettings(currentLocale);
+
+// Get the Spanish homepage as fallback if English doesn't have specific data
+const homepageES = await getHomepage('es');
+const heroTitle = homepage?.heroTitle || homepageES?.heroTitle || '';
+const heroSubtitle = homepage?.heroSubtitle || homepageES?.heroSubtitle || '';
+const heroImage = homepage?.heroImage?.url || homepageES?.heroImage?.url || '';
+---
+
+<BaseLayout>
+  <SEO 
+    title={heroTitle || 'Welcome'} 
+    description={heroSubtitle || 'Welcome to Warynessy Restaurant'}
+    image={heroImage}
+  />
+
+  <Hero 
+    title={heroTitle}
+    subtitle={heroSubtitle}
+    image={heroImage}
+  />
+
+  {/* Rest of the homepage sections */}
+  <!-- You can copy the sections from src/pages/index.astro and translate them */}
+  
+</BaseLayout>

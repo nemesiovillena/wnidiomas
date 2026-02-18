@@ -12,6 +12,13 @@ export default defineConfig({
   adapter: node({
     mode: 'middleware'
   }),
+  i18n: {
+    defaultLocale: 'es',
+    locales: ['es', 'en', 'fr', 'de'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
     resolve: {

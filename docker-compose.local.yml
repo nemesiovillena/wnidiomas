@@ -1,0 +1,50 @@
+# Docker Compose for Local Development - Single Container
+# Usage: docker-compose -f docker-compose.local.yml up
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: warynessy-local
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      # Configuración de PostgreSQL integrado en el mismo contenedor
+      POSTGRES_USER: ${POSTGRES_USER:-warynessy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warynessy_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-warynessy}
+      # URL de conexión a PostgreSQL (localhost porque está en el mismo contenedor)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-warynessy}:${POSTGRES_PASSWORD:-warynessy_dev}@localhost:5432/${POSTGRES_DB:-warynessy}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-0123456789abcdef0123456789abcdef}
+      PAYLOAD_PUBLIC_SERVER_URL: http://localhost:3000
+      PUBLIC_SITE_URL: http://localhost:3000
+      PUBLIC_PAYLOAD_API_URL: http://localhost:3000/api
+      NEXT_TELEMETRY_DISABLED: 1
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      # Source code para hot reload
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./payload.config.ts:/app/payload.config.ts
+      - ./server.ts:/app/server.ts
+      - ./next.config.mjs:/app/next.config.mjs
+      - ./astro.config.mjs:/app/astro.config.mjs
+      - ./tsconfig.json:/app/tsconfig.json
+      # Persistir base de datos PostgreSQL
+      - postgres_data:/var/lib/postgresql/data
+      # Persistir media uploads
+      - ./media:/app/media
+      # Excluir node_modules del bind mount
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: npm run dev
+
+volumes:
+  postgres_data:
+    external: true
+
+networks:
+  default:
+    name: warynessy-local-network

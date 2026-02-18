@@ -41,10 +41,24 @@ async function fetchPayload<T>(
 }
 
 /**
+ * Get current locale from URL or default to 'es'
+ */
+function getCurrentLocale(): string {
+  // El locale lo obtendremos de Astro en los componentes
+  // Por defecto español
+  return 'es'
+}
+
+/**
  * Get all documents from a collection
  */
-export async function getAll<T>(collection: string, query: Record<string, any> = {}): Promise<T[]> {
+export async function getAll<T>(collection: string, query: Record<string, any> = {}, locale?: string): Promise<T[]> {
   const params = new URLSearchParams()
+
+  // Añadir locale si se proporciona
+  if (locale) {
+    params.append('locale', locale)
+  }
 
   if (query.where) {
     params.append('where', JSON.stringify(query.where))
@@ -69,69 +83,71 @@ export async function getAll<T>(collection: string, query: Record<string, any> =
 /**
  * Get a single document by ID
  */
-export async function getById<T>(collection: string, id: string, depth = 1): Promise<T> {
-  return fetchPayload<T>(`${collection}/${id}?depth=${depth}`)
+export async function getById<T>(collection: string, id: string, depth = 1, locale?: string): Promise<T> {
+  const localeParam = locale ? `&locale=${locale}` : ''
+  return fetchPayload<T>(`${collection}/${id}?depth=${depth}${localeParam}`)
 }
 
 /**
  * Get a single document by slug
  */
-export async function getBySlug<T>(collection: string, slug: string, depth = 1): Promise<T | null> {
+export async function getBySlug<T>(collection: string, slug: string, depth = 1, locale?: string): Promise<T | null> {
   const data = await getAll<T>(collection, {
     where: { slug: { equals: slug } },
     limit: 1,
     depth,
-  })
+  }, locale)
   return data[0] || null
 }
 
 /**
  * Get a global singleton
  */
-export async function getGlobal<T>(slug: string, depth = 1): Promise<T> {
-  return fetchPayload<T>(`globals/${slug}?depth=${depth}`)
+export async function getGlobal<T>(slug: string, depth = 1, locale?: string): Promise<T> {
+  const localeParam = locale ? `&locale=${locale}` : ''
+  return fetchPayload<T>(`globals/${slug}?depth=${depth}${localeParam}`)
 }
 
 // Specific helpers for common queries
 
-export const getDishes = (active = true) =>
-  getAll('dishes', {
+export const getDishes = (active = true, locale?: string) =>
+  getAll('platos', {
     where: active ? { activo: { equals: true } } : {},
     sort: 'orden',
     depth: 2,
-  })
+  }, locale)
 
-export const getDishesByCategory = (categoryId: string, active = true) =>
-  getAll('dishes', {
+export const getDishesByCategory = (categoryId: string, active = true, locale?: string) =>
+  getAll('platos', {
     where: {
       categoria: { equals: categoryId },
       ...(active ? { activo: { equals: true } } : {}),
     },
     sort: 'orden',
     depth: 2,
-  })
+  }, locale)
 
-export const getCategories = (active = true) =>
-  getAll('categories', {
+export const getCategories = (active = true, locale?: string) =>
+  getAll('categorias', {
     where: active ? { activa: { equals: true } } : {},
     sort: 'orden',
-  })
+  }, locale)
 
-export const getMenus = (active = true) =>
+export const getMenus = (active = true, locale?: string) =>
   getAll('menus', {
     where: active ? { activo: { equals: true } } : {},
     sort: 'orden',
     depth: 1,
-  })
+  }, locale)
 
-export const getSpaces = (active = true) =>
-  getAll('spaces', {
+export const getSpaces = (active = true, locale?: string) =>
+  getAll('espacios', {
     where: active ? { activo: { equals: true } } : {},
     sort: 'orden',
     depth: 1,
-  })
+  }, locale)
 
-export const getActiveBanners = (position?: string) => {
+export const getActiveBanners = (position?: string, locale?: string) => {
   const now = new Date().toISOString()
   const where: any = {
     activo: { equals: true },
@@ -147,8 +163,8 @@ export const getActiveBanners = (position?: string) => {
     where,
     sort: '-prioridad',
     depth: 1,
-  })
+  }, locale)
 }
 
-export const getHomepage = () => getGlobal('homepage', 2)
-export const getSiteSettings = () => getGlobal('site-settings', 1)
+export const getHomepage = (locale?: string) => getGlobal('pagina-inicio', 2, locale)
+export const getSiteSettings = (locale?: string) => getGlobal('configuracion-sitio', 1, locale)

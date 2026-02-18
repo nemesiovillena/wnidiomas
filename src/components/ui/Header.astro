@@ -1,5 +1,6 @@
 ---
 import { getSiteSettings } from '../../lib/payload-local';
+import LanguageSelector from './LanguageSelector.astro';
 
 // Fetch site settings for logo and title
 const siteSettings = await getSiteSettings();
@@ -46,7 +47,7 @@ const navLinks = [
 
     {/* Icons/Actions */}
     <div class="flex items-center gap-4">
-
+      <LanguageSelector />
       <button id="menu-toggle" class="text-white flex items-center justify-center hover:text-primary transition-colors lg:hidden">
         <span class="material-symbols-outlined">menu</span>
       </button>

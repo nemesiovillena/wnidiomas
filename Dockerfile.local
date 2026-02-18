@@ -1,0 +1,49 @@
+# Dockerfile para desarrollo local con un solo contenedor
+# Incluye PostgreSQL en el mismo contenedor
+
+FROM node:24.13.1-alpine
+
+WORKDIR /app
+
+# Instalar dependencias necesarias para native modules y PostgreSQL
+RUN apk add --no-cache libc6-compat python3 make g++ postgresql postgresql-client
+
+# Copiar archivos de package
+COPY package.json package-lock.json ./
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar todo el código fuente
+COPY . .
+
+# Crear directorios con permisos correctos para PostgreSQL
+# Usamos el usuario root para crear el directorio y luego lo pasamos a node
+RUN mkdir -p /var/lib/postgresql/data && \
+    chown -R node:node /var/lib/postgresql && \
+    mkdir -p /app/media && \
+    chown -R node:node /app/media && \
+    mkdir -p /app/.astro && \
+    chown -R node:node /app && \
+    chmod 700 /var/lib/postgresql/data
+
+# Script para iniciar PostgreSQL y la aplicación
+COPY docker-entrypoint.local.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.local.sh
+
+# Configurar entorno de desarrollo
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PGDATA=/var/lib/postgresql/data
+
+# Exponer puertos (PostgreSQL interno + aplicación)
+EXPOSE 3000 5432
+
+# Cambiar a usuario node
+USER node
+
+# Punto de entrada
+ENTRYPOINT ["docker-entrypoint.local.sh"]
+
+# Comando por defecto (se puede sobrescribir en docker-compose)
+CMD ["npm", "run", "dev"]

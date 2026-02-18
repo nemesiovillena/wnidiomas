@@ -24,7 +24,7 @@
 **Estado:** ✅ Completada
 
 ### ✅ Tareas Completadas
-- [x] Crear repositorio GitHub "web-warynessy-2026"
+- [x] Crear repositorio GitHub "wnidiomas"
 - [x] Configurar estructura de documentación
 - [x] Definir stack tecnológico
 - [x] Definir arquitectura de datos
@@ -35,7 +35,7 @@
 - [x] Configurar .gitignore adecuado
 - [x] Crear archivo README.md del proyecto
 - [x] Implementar etiquetas dinámicas en platos (badges)
-- [x] Documentar todas las variables de entorno (.env.example)
+- [x] Documentar todas las variables de entorno (.env)
 
 ---
 
