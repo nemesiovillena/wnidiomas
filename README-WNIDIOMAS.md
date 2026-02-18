@@ -10,11 +10,13 @@ Este es el proyecto local de desarrollo para Warynessy, basado en el proyecto de
 - **Base de datos:** PostgreSQL local (en Docker)
 - **URL local:** http://localhost:3000
 
-**Proyecto de producción (`web-warynessy-2026`):**
-- **Repositorio:** https://github.com/nemesiovillena/web-warynessy-2026.git
+**Proyecto de producción (`Waryidiomas` en Dokploy):**
+- **Plataforma:** Dokploy
 - **Propósito:** Sitio en producción
 - **Base de datos:** PostgreSQL remoto (72.62.183.215:5436)
-- **URL producción:** https://web-warynessy-2026.vercel.app
+- **Admin producción:** https://admin.warynessy.eneweb.es
+- **Sitio producción:** https://warynessy.eneweb.es
+- **Estado:** Por desplegar (aún no hay deploy en producción)
 
 ## 🚀 Empezar Rápido - Desarrollo Local
 
