@@ -10,19 +10,14 @@ export PGDATABASE=${POSTGRES_DB:-warynessy}
 export PGHOST=localhost
 export PGPORT=5432
 
-# Crear directorio para logs si no existe
+# Crear directorios necesarios
 mkdir -p "$PGDATA/log"
+mkdir -p /tmp
+chmod 777 /tmp 2>/dev/null || true
 
 # Verificar si ya está inicializado
 if [ ! -f "$PGDATA/PG_VERSION" ]; then
     echo "📦 Inicializando base de datos PostgreSQL..."
-    
-    # Verificar que el directorio esté vacío (solo debe tener lost+found si es un volumen)
-    if [ "$(ls -A $PGDATA 2>/dev/null)" ]; then
-        echo "⚠️  Directorio $PGDATA no está vacío, limpiando..."
-        # Remover todo excepto lost+found si existe
-        find "$PGDATA" -mindepth 1 -maxdepth 1 ! -name 'lost+found' -exec rm -rf {} + 2>/dev/null || true
-    fi
     
     # Inicializar con UTF-8 y configuraciones locales
     initdb -D "$PGDATA" --encoding=UTF8 --locale=C --no-locale
@@ -49,53 +44,13 @@ host    all             all             127.0.0.1/32            trust
 host    all             all             ::1/128                  trust
 EOF
     
-    # Crear directorio para socket de UNIX
-    mkdir -p /tmp
-    chmod 777 /tmp
-    
-    # Iniciar PostgreSQL temporalmente
-    echo "🔧 Iniciando PostgreSQL temporalmente..."
-    pg_ctl -D "$PGDATA" \
-        -l "$PGDATA/log/postmaster.log" \
-        -o "-k /tmp -c listen_addresses='localhost'" \
-        start
-    
-    # Esperar a que esté listo
-    echo "⏳ Esperando a que PostgreSQL esté listo..."
-    max_tries=10
-    counter=0
-    until pg_isready -U postgres -h localhost -p 5432 > /dev/null 2>&1; do
-        counter=$((counter + 1))
-        if [ $counter -ge $max_tries ]; then
-            echo "❌ PostgreSQL no inició en el tiempo esperado"
-            cat "$PGDATA/log/postmaster.log" 2>/dev/null || echo "No log file found"
-            exit 1
-        fi
-        echo "  ⏱️  Intento $counter/$max_tries..."
-        sleep 1
-    done
-    
-    echo "✅ PostgreSQL está listo"
-    
-    # Crear usuario y base de datos
-    echo "👤 Creando usuario y base de datos..."
-    psql -U postgres -h localhost <<EOF
-CREATE USER $PGUSER WITH SUPERUSER PASSWORD '$PGPASSWORD';
-CREATE DATABASE $PGDATABASE OWNER $PGUSER;
-GRANT ALL PRIVILEGES ON DATABASE $PGDATABASE TO $PGUSER;
-EOF
-    
-    # Detener PostgreSQL temporalmente
-    echo "🛑 Deteniendo PostgreSQL temporalmente..."
-    pg_ctl -D "$PGDATA" stop
-    
     echo "✅ Base de datos inicializada correctamente"
 else
     echo "✅ Base de datos ya existe, iniciando..."
 fi
 
 # Limpiar socket antiguo si existe
-rm -f /tmp/.s.PGSQL.5432
+rm -f /tmp/.s.PGSQL.5432 2>/dev/null || true
 
 # Iniciar PostgreSQL
 echo "🔧 Iniciando PostgreSQL..."
@@ -108,7 +63,7 @@ pg_ctl -D "$PGDATA" \
 echo "⏳ Esperando a que PostgreSQL esté listo..."
 max_tries=30
 counter=0
-until pg_isready -U $PGUSER -d $PGDATABASE -h localhost -p 5432 > /dev/null 2>&1; do
+until pg_isready -U node -h localhost -p 5432 > /dev/null 2>&1; do
     counter=$((counter + 1))
     if [ $counter -ge $max_tries ]; then
         echo "❌ PostgreSQL no inició en el tiempo esperado"
@@ -121,6 +76,37 @@ until pg_isready -U $PGUSER -d $PGDATABASE -h localhost -p 5432 > /dev/null 2>&1
 done
 
 echo "✅ PostgreSQL está listo en localhost:5432"
+
+# Crear usuario wearynessy y base de datos usando el usuario node (siempre ejecutar esto)
+echo "🔍 Verificando/creando usuario $PGUSER y base de datos $PGDATABASE..."
+
+# Verificar si el usuario wearynessy existe usando psql con el usuario node
+USER_EXISTS=$(psql -U node -h localhost -tAc "SELECT 1 FROM pg_user WHERE usename = '$PGUSER'" 2>/dev/null || echo "")
+
+if [ "$USER_EXISTS" != "1" ]; then
+    echo "👤 Usuario $PGUSER no existe, creándolo..."
+    psql -U node -h localhost <<EOF
+CREATE USER $PGUSER WITH SUPERUSER PASSWORD '$PGPASSWORD';
+EOF
+    echo "✅ Usuario $PGUSER creado"
+else
+    echo "✅ Usuario $PGUSER ya existe"
+fi
+
+# Verificar si la base de datos wearynessy existe
+DB_EXISTS=$(psql -U node -h localhost -tAc "SELECT 1 FROM pg_database WHERE datname = '$PGDATABASE'" 2>/dev/null || echo "")
+
+if [ "$DB_EXISTS" != "1" ]; then
+    echo "📊 Base de datos $PGDATABASE no existe, creándola..."
+    psql -U node -h localhost <<EOF
+CREATE DATABASE $PGDATABASE OWNER $PGUSER;
+GRANT ALL PRIVILEGES ON DATABASE $PGDATABASE TO $PGUSER;
+EOF
+    echo "✅ Base de datos $PGDATABASE creada"
+else
+    echo "✅ Base de datos $PGDATABASE ya existe"
+fi
+
 echo "📊 Usuario: $PGUSER"
 echo "📊 Base de datos: $PGDATABASE"
 
