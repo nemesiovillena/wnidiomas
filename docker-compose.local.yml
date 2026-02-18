@@ -32,7 +32,7 @@ services:
       - ./astro.config.mjs:/app/astro.config.mjs
       - ./tsconfig.json:/app/tsconfig.json
       # Persistir base de datos PostgreSQL
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_clean:/var/lib/postgresql/data
       # Persistir media uploads
       - ./media:/app/media
       # Excluir node_modules del bind mount
@@ -42,8 +42,8 @@ services:
     command: npm run dev
 
 volumes:
-  postgres_data:
-    external: true
+  postgres_data_clean:
+
 
 networks:
   default:
